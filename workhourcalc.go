@@ -31,6 +31,9 @@ func GetWorkingHoursBetween(workHours WorkHours, workDays WorkDays, start time.T
 		return 0, errors.New("start date must be before end date")
 	}
 
+	start = moveToNextValidWorkTime(start, workDays, workHours)
+	end = moveToLastValidWorkTime(end, workDays, workHours)
+
 	if areSameDay(start, end) {
 		return getHoursBetween(start, end), nil
 	} else {
@@ -39,6 +42,34 @@ func GetWorkingHoursBetween(workHours WorkHours, workDays WorkDays, start time.T
 }
 
 //Private Functions
+func moveToNextValidWorkTime(dateTime time.Time, workDays WorkDays, workHours WorkHours) time.Time {
+	if IsDuringWorkHours(dateTime, workDays, workHours) {
+		return dateTime
+	}
+
+	for !isWorkDay(dateTime.Weekday(), workDays) {
+		dateTime = dateTime.AddDate(0, 0, 1)
+	}
+
+	dateTime = changeHourAndMinute(dateTime, workHours.StartHour, workHours.StartMinute)
+
+	return dateTime
+}
+
+func moveToLastValidWorkTime(dateTime time.Time, workDays WorkDays, workHours WorkHours) time.Time {
+	if IsDuringWorkHours(dateTime, workDays, workHours) {
+		return dateTime
+	}
+
+	for !isWorkDay(dateTime.Weekday(), workDays) {
+		dateTime = dateTime.AddDate(0, 0, -1)
+	}
+
+	dateTime = changeHourAndMinute(dateTime, workHours.EndHour, workHours.EndMinute)
+
+	return dateTime
+}
+
 func isInsideWorkHours(day time.Time, workHours WorkHours) bool {
 	dayStart := changeHourAndMinute(day, workHours.StartHour, workHours.StartMinute)
 
@@ -115,21 +146,21 @@ func getHoursBetween(start time.Time, end time.Time) float64 {
 
 func getWorkHoursBetween(workHours WorkHours, workDays WorkDays, start time.Time, end time.Time) float64 {
 	//startDay
-	hoursToEndOfDay := getHoursUntilEndOfDay(workHours, workDays, start)
+	hoursToEndOfDay := getHoursUntilEndOfDay(workHours, start)
 	//endDay
-	hoursFromBeginningOfDay := getHoursFromStartOfDay(workHours, workDays, end)
+	hoursFromBeginningOfDay := getHoursFromStartOfDay(workHours, end)
 	//days Between
 	workHoursBetween := getWorkHoursOnDaysBetween(workHours, workDays, start, end)
 	return hoursToEndOfDay + hoursFromBeginningOfDay + workHoursBetween
 }
 
-func getHoursUntilEndOfDay(workHours WorkHours, workDays WorkDays, day time.Time) float64 {
+func getHoursUntilEndOfDay(workHours WorkHours, day time.Time) float64 {
 	end := changeHourAndMinute(day, workHours.EndHour, workHours.EndMinute)
 
 	return getHoursBetween(day, end)
 }
 
-func getHoursFromStartOfDay(workHours WorkHours, workDays WorkDays, day time.Time) float64 {
+func getHoursFromStartOfDay(workHours WorkHours, day time.Time) float64 {
 	start := changeHourAndMinute(day, workHours.StartHour, workHours.StartMinute)
 
 	return getHoursBetween(start, day)

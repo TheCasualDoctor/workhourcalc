@@ -15,23 +15,20 @@ func TestIsInsideWorkHours(t *testing.T) {
 
 	day := parseTime("2017-03-30T09:35:00.000Z")
 	actual := isInsideWorkHours(day, workHours)
-	expected := true
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", true, actual)
 	}
 
 	day = parseTime("2017-03-30T01:35:00.000Z")
 	actual = isInsideWorkHours(day, workHours)
-	expected = false
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 
 	day = parseTime("2017-03-30T23:35:00.000Z")
 	actual = isInsideWorkHours(day, workHours)
-	expected = false
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 }
 
@@ -47,37 +44,32 @@ func TestIsDuringWorkHours (t *testing.T) {
 
 	day := parseTime("2018-03-30T09:35:00.000Z")
 	actual := IsDuringWorkHours(day, workDays, workHours)
-	expected := true
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", true, actual)
 	}
 
 	day = parseTime("2018-03-31T09:35:00.000Z")
 	actual = IsDuringWorkHours(day, workDays, workHours)
-	expected = false
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 
 	day = parseTime("2018-03-31T09:35:00.000Z")
 	actual = IsDuringWorkHours(day, workDays, workHours)
-	expected = false
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 
 	day = parseTime("2018-03-29T21:35:00.000Z")
 	actual = IsDuringWorkHours(day, workDays, workHours)
-	expected = false
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 
 	day = parseTime("2018-03-28T13:35:00.000Z")
 	actual = IsDuringWorkHours(day, workDays, workHours)
-	expected = false
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 }
 
@@ -180,12 +172,16 @@ func TestHoursBetweenOverWeekend(t *testing.T) {
 
 	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
 
-	hours, _ := GetWorkingHoursBetween(workHours, workDays, start, end)
+	hours, err := GetWorkingHoursBetween(workHours, workDays, start, end)
 
 	expectedHours := 39.5
 
 	if hours != expectedHours {
 		t.Errorf("Incorrect, wanted: %d, got: %d.", expectedHours, hours)
+	}
+
+	if err != nil {
+		t.Errorf("Was not expecting error, but got one.")
 	}
 }
 
@@ -199,9 +195,7 @@ func TestGetStartDayHours(t *testing.T) {
 		EndMinute: 15,
 	}
 
-	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
-
-	hours := getHoursUntilEndOfDay(workHours, workDays, day)
+	hours := getHoursUntilEndOfDay(workHours, day)
 
 	expectedHours := 8.5
 
@@ -220,9 +214,7 @@ func TestGetEndDayHours(t *testing.T) {
 		EndMinute: 15,
 	}
 
-	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
-
-	hours := getHoursFromStartOfDay(workHours, workDays, day)
+	hours := getHoursFromStartOfDay(workHours, day)
 
 	expectedHours := 5.75
 
@@ -249,23 +241,19 @@ func TestAreSameDay(t *testing.T) {
 	day1 := parseTime("2017-03-29T09:45:00.000Z")
 	day2 := parseTime("2017-03-29T10:13:00.000Z")
 
-	expected := true
-
 	actual := areSameDay(day1, day2)
 
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", true, actual)
 	}
 
 	day1 = parseTime("2017-03-29T09:45:00.000Z")
 	day2 = parseTime("2017-03-22T10:13:00.000Z")
 
-	expected = false
-
 	actual = areSameDay(day1, day2)
 
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 }
 
@@ -273,23 +261,19 @@ func TestAreConsecutiveDays(t *testing.T) {
 	day1 := parseTime("2017-03-29T09:45:00.000Z")
 	day2 := parseTime("2017-03-30T10:13:00.000Z")
 
-	expected := true
-
 	actual := areConsecutiveDays(day1, day2)
 
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", true, actual)
 	}
 
 	day1 = parseTime("2017-03-29T09:45:00.000Z")
 	day2 = parseTime("2016-03-30T10:13:00.000Z")
 
-	expected = false
-
 	actual = areConsecutiveDays(day1, day2)
 
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 }
 
@@ -341,32 +325,76 @@ func TestGetWorkDaysBetween(t *testing.T) {
 func TestIsWorkDay(t *testing.T) {
 	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Thursday,time.Friday}
 
-	expected := true
 	actual := isWorkDay(1, workDays)
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", true, actual)
 	}
 
-	expected = true
 	actual = isWorkDay(4, workDays)
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", true, actual)
 	}
 
-	expected = false
 	actual = isWorkDay(6, workDays)
-	if expected != actual {
-		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
 
-	expected = false
 	actual = isWorkDay(3, workDays)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
+	}
+
+	actual = isWorkDay(7, workDays)
+	if false != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
+	}
+}
+
+func TestMoveToNextValidWorkTime(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 7,
+		StartMinute: 45,
+		EndHour: 18,
+		EndMinute: 15,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	day := parseTime("2017-03-31T14:30:00.000Z")
+	actual := moveToNextValidWorkTime(day, workDays, workHours)
+	expected := day
 	if expected != actual {
 		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
 	}
 
-	expected = false
-	actual = isWorkDay(7, workDays)
+	day = parseTime("2018-03-31T23:30:00.000Z")
+	actual = moveToNextValidWorkTime(day, workDays, workHours)
+	expected = parseTime("2018-04-02T07:45:00.000Z")
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+}
+
+
+func TestMoveToLastValidWorkTime(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 7,
+		StartMinute: 45,
+		EndHour: 18,
+		EndMinute: 15,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	day := parseTime("2017-03-31T14:30:00.000Z")
+	actual := moveToLastValidWorkTime(day, workDays, workHours)
+	expected := day
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+
+	day = parseTime("2018-04-01T23:30:00.000Z")
+	actual = moveToLastValidWorkTime(day, workDays, workHours)
+	expected = parseTime("2018-03-30T18:15:00.000Z")
 	if expected != actual {
 		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
 	}
