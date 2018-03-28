@@ -416,6 +416,23 @@ func TestForceMoveToLastValidWorkTime(t *testing.T) {
 	}
 }
 
+func TestForceMoveToNextValidWorkTime(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 7,
+		StartMinute: 45,
+		EndHour: 18,
+		EndMinute: 15,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	day := parseTime("2018-03-26T16:00:00.000Z")
+	expected := parseTime("2018-03-27T07:45:00.000Z")
+	actual := forceMoveToNextValidWorkTime(day, workDays, workHours)
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+}
+
 func TestSubtractWorkHoursFromTime(t *testing.T) {
 	workHours := WorkHours{
 		StartHour: 8,
