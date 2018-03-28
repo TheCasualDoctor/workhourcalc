@@ -375,7 +375,6 @@ func TestMoveToNextValidWorkTime(t *testing.T) {
 	}
 }
 
-
 func TestMoveToLastValidWorkTime(t *testing.T) {
 	workHours := WorkHours{
 		StartHour: 7,
@@ -395,6 +394,127 @@ func TestMoveToLastValidWorkTime(t *testing.T) {
 	day = parseTime("2018-04-01T23:30:00.000Z")
 	actual = moveToLastValidWorkTime(day, workDays, workHours)
 	expected = parseTime("2018-03-30T18:15:00.000Z")
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+}
+
+func TestForceMoveToLastValidWorkTime(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 7,
+		StartMinute: 45,
+		EndHour: 18,
+		EndMinute: 15,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	day := parseTime("2018-03-27T09:00:00.000Z")
+	actual := forceMoveToLastValidWorkTime(day, workDays, workHours)
+	expected := parseTime("2018-03-26T18:15:00.000Z")
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+}
+
+func TestSubtractWorkHoursFromTime(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 8,
+		StartMinute: 00,
+		EndHour: 17,
+		EndMinute: 30,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	//Same day
+	hoursToSubtract := 3.0
+	day := parseTime("2018-03-26T12:00:00.000Z")
+	actual := SubtractWorkHours(day, hoursToSubtract, workDays, workHours)
+	expected := parseTime("2018-03-26T09:00:00.000Z")
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+
+	//Consecutive working days
+	hoursToSubtract = 3.5
+	day = parseTime("2018-03-27T09:00:00.000Z")
+	actual = SubtractWorkHours(day, hoursToSubtract, workDays, workHours)
+	expected = parseTime("2018-03-26T15:30:00.000Z")
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+
+	//Over the weekend
+	hoursToSubtract = 3.0
+	day = parseTime("2018-03-26T09:00:00.000Z")
+	actual = SubtractWorkHours(day, hoursToSubtract, workDays, workHours)
+	expected = parseTime("2018-03-23T15:30:00.000Z")
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+
+	//Weird work hours
+	workHours = WorkHours{
+		StartHour: 1,
+		StartMinute: 00,
+		EndHour: 23,
+		EndMinute: 00,
+	}
+	hoursToSubtract = 4.0
+	day = parseTime("2018-03-26T02:00:00.000Z")
+	actual = SubtractWorkHours(day, hoursToSubtract, workDays, workHours)
+	expected = parseTime("2018-03-23T20:00:00.000Z")
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+}
+
+func TestAddWorkHoursToTime(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 8,
+		StartMinute: 00,
+		EndHour: 17,
+		EndMinute: 30,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	//Same day
+	hoursToAdd := 3.0
+	expected := parseTime("2018-03-26T12:00:00.000Z")
+	day := parseTime("2018-03-26T09:00:00.000Z")
+	actual := AddWorkHours(day, hoursToAdd, workDays, workHours)
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+
+	//Consecutive working days
+	hoursToAdd = 3.5
+	expected = parseTime("2018-03-27T09:00:00.000Z")
+	day = parseTime("2018-03-26T15:30:00.000Z")
+	actual = AddWorkHours(day, hoursToAdd, workDays, workHours)
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+
+	//Over the weekend
+	hoursToAdd = 3.0
+	expected = parseTime("2018-03-26T09:00:00.000Z")
+	day = parseTime("2018-03-23T15:30:00.000Z")
+	actual = AddWorkHours(day, hoursToAdd, workDays, workHours)
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
+	}
+
+	//Weird work hours
+	workHours = WorkHours{
+		StartHour: 1,
+		StartMinute: 00,
+		EndHour: 23,
+		EndMinute: 00,
+	}
+	hoursToAdd = 4.0
+	expected = parseTime("2018-03-26T02:00:00.000Z")
+	day = parseTime("2018-03-23T20:00:00.000Z")
+	actual = AddWorkHours(day, hoursToAdd, workDays, workHours)
 	if expected != actual {
 		t.Errorf("Incorrect, wanted: %d, got: %d.", expected, actual)
 	}

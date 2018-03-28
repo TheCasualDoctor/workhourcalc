@@ -14,6 +14,36 @@ type WorkHours struct {
 
 type WorkDays []time.Weekday
 
+func SubtractWorkHours(day time.Time, hoursToSubtract float64, workDays WorkDays, workHours WorkHours) time.Time {
+	//Just subtract the time and see if it's valid.
+	start := day.Add(-time.Hour * time.Duration(hoursToSubtract))
+
+	timeBetween, _ := GetWorkingHoursBetween(workHours, workDays, start, day)
+
+	if IsDuringWorkHours(start, workDays, workHours) && timeBetween == hoursToSubtract {
+		return start
+	} else {
+		remainingHours := hoursToSubtract - timeBetween
+		start = forceMoveToLastValidWorkTime(start, workDays, workHours).Add(-time.Hour * time.Duration(remainingHours))
+		return start
+	}
+}
+
+func AddWorkHours(day time.Time, hoursToAdd float64, workDays WorkDays, workHours WorkHours) time.Time {
+	//Just add the time and see if it's valid.
+	end := day.Add(time.Hour * time.Duration(hoursToAdd))
+
+	timeBetween, _ := GetWorkingHoursBetween(workHours, workDays, day, end)
+
+	if IsDuringWorkHours(end, workDays, workHours) && timeBetween == hoursToAdd {
+		return end
+	} else {
+		remainingHours := hoursToAdd - timeBetween
+		end = forceMoveToNextValidWorkTime(end, workDays, workHours).Add(time.Hour * time.Duration(remainingHours))
+		return end
+	}
+}
+
 func IsDuringWorkHours(day time.Time, workDays WorkDays, workHours WorkHours) bool {
 	if !isWorkDay(day.Weekday(), workDays) {
 		return false
@@ -66,6 +96,30 @@ func moveToLastValidWorkTime(dateTime time.Time, workDays WorkDays, workHours Wo
 	}
 
 	dateTime = changeHourAndMinute(dateTime, workHours.EndHour, workHours.EndMinute)
+
+	return dateTime
+}
+
+func forceMoveToLastValidWorkTime(dateTime time.Time, workDays WorkDays, workHours WorkHours) time.Time {
+	dateTime = dateTime.AddDate(0, 0, -1)
+
+	for !isWorkDay(dateTime.Weekday(), workDays) {
+		dateTime = dateTime.AddDate(0, 0, -1)
+	}
+
+	dateTime = changeHourAndMinute(dateTime, workHours.EndHour, workHours.EndMinute)
+
+	return dateTime
+}
+
+func forceMoveToNextValidWorkTime(dateTime time.Time, workDays WorkDays, workHours WorkHours) time.Time {
+	dateTime = dateTime.AddDate(0, 0, 1)
+
+	for !isWorkDay(dateTime.Weekday(), workDays) {
+		dateTime = dateTime.AddDate(0, 0, 1)
+	}
+
+	dateTime = changeHourAndMinute(dateTime, workHours.StartHour, workHours.StartMinute)
 
 	return dateTime
 }
