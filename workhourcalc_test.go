@@ -30,6 +30,18 @@ func TestIsInsideWorkHours(t *testing.T) {
 	if false != actual {
 		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
 	}
+
+	day = parseTime("2017-03-30T07:45:00.000Z")
+	actual = isInsideWorkHours(day, workHours)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", false, actual)
+	}
+
+	day = parseTime("2017-03-30T18:25:00.000Z")
+	actual = isInsideWorkHours(day, workHours)
+	if true != actual {
+		t.Errorf("Incorrect, wanted: %d, got: %d.", true, actual)
+	}
 }
 
 func TestIsDuringWorkHours (t *testing.T) {

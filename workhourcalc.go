@@ -221,12 +221,12 @@ func getHoursFromStartOfDay(workHours WorkHours, day time.Time) float64 {
 }
 
 func changeHourAndMinute(day time.Time, newHour int, newMinute int) time.Time {
-	return time.Date(day.Year(), day.Month(), day.Day(), newHour, newMinute, 0, 0, day.Location())
+	return time.Date(day.Year(), day.Month(), day.Day(), newHour, newMinute, 0, 0, time.Local)
 }
 
 func parseTime(dateTimeString string) time.Time {
 	layout := "2006-01-02T15:04:05.000Z"
-	t, _ := time.Parse(layout, dateTimeString)
+	t, _ := time.ParseInLocation(layout, dateTimeString, time.Local)
 
 	return t
 }
