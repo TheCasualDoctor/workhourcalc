@@ -64,9 +64,7 @@ func GetWorkingHoursBetween(workHours WorkHours, workDays WorkDays, start time.T
 	start = moveToNextValidWorkTime(start, workDays, workHours)
 	end = moveToLastValidWorkTime(end, workDays, workHours)
 	if start.After(end) {
-		temp := start
-		start = end
-		end = temp
+		start, end = end, start
 	}
 
 	if areSameDay(start, end) {
