@@ -127,6 +127,42 @@ func TestHoursBetweenSameDay(t *testing.T) {
 	}
 }
 
+func TestHoursBetweenSameDayInfiniteLoop(t *testing.T) {
+	timer := time.NewTimer(time.Second)
+	year, month, day := time.Now().Date()
+	start := time.Date(year, month, day, 5, 0, 0, 0, time.UTC).AddDate(-1, 0, 0)
+	end := time.Date(year, month, day, 21, 0, 0, 0, time.UTC).AddDate(-1, 0, 0)
+	max := time.Now()
+	for start.Before(max) {
+		workHours := WorkHours{
+			StartHour:   8,
+			StartMinute: 0,
+			EndHour:     18,
+			EndMinute:   0,
+		}
+
+		workDays := []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday, time.Saturday}
+
+		done := make(chan bool)
+		timer.Reset(time.Second)
+		go func() {
+			GetWorkingHoursBetween(workHours, workDays, start, end)
+			close(done)
+		}()
+
+		select {
+		case <-done:
+			break
+		case <-timer.C:
+			t.Fatalf("infinite loop detected on range %v - %v", start, end)
+			break
+		}
+
+		start = start.AddDate(0, 0, 1)
+		end = end.AddDate(0, 0, 1)
+	}
+}
+
 func TestHoursConsecutiveWorkdays(t *testing.T) {
 	start := parseTime("2017-03-29T09:45:00.000Z") //7.25
 	end := parseTime("2017-03-30T13:15:00.000Z") //5.25
