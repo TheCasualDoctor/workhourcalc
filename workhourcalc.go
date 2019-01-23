@@ -1,8 +1,8 @@
 package workhourcalc
 
 import (
-	"time"
 	"errors"
+	"time"
 )
 
 type WorkHours struct {
@@ -63,6 +63,11 @@ func GetWorkingHoursBetween(workHours WorkHours, workDays WorkDays, start time.T
 
 	start = moveToNextValidWorkTime(start, workDays, workHours)
 	end = moveToLastValidWorkTime(end, workDays, workHours)
+	if start.After(end) {
+		temp := start
+		start = end
+		end = temp
+	}
 
 	if areSameDay(start, end) {
 		return getHoursBetween(start, end), nil
