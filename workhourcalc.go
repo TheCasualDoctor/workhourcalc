@@ -74,6 +74,10 @@ func GetWorkingHoursBetween(workHours WorkHours, workDays WorkDays, start time.T
 	}
 }
 
+func GetNextValidWorkTime(dateTime time.Time, workDays WorkDays, workHours WorkHours) time.Time {
+	return moveToNextValidWorkTime(dateTime, workDays, workHours)
+}
+
 //Private Functions
 func moveToNextValidWorkTime(dateTime time.Time, workDays WorkDays, workHours WorkHours) time.Time {
 	if IsDuringWorkHours(dateTime, workDays, workHours) {
