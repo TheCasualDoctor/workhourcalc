@@ -84,6 +84,11 @@ func moveToNextValidWorkTime(dateTime time.Time, workDays WorkDays, workHours Wo
 		return dateTime
 	}
 
+	//If it's a valid day, but after hours, advance the day
+	if dateTime.After(time.Date(dateTime.Year(), dateTime.Month(), dateTime.Day(), workHours.EndHour, workHours.EndMinute, 0, 0, time.Local)) {
+		dateTime = dateTime.AddDate(0, 0, 1)
+	}
+
 	for !isWorkDay(dateTime.Weekday(), workDays) {
 		dateTime = dateTime.AddDate(0, 0, 1)
 	}
@@ -96,6 +101,11 @@ func moveToNextValidWorkTime(dateTime time.Time, workDays WorkDays, workHours Wo
 func moveToLastValidWorkTime(dateTime time.Time, workDays WorkDays, workHours WorkHours) time.Time {
 	if IsDuringWorkHours(dateTime, workDays, workHours) {
 		return dateTime
+	}
+
+	//If it's a valid day, but before hours, subtract 1 day
+	if dateTime.Before(time.Date(dateTime.Year(), dateTime.Month(), dateTime.Day(), workHours.StartHour, workHours.StartMinute, 0, 0, time.Local)) {
+		dateTime = dateTime.AddDate(0, 0, -1)
 	}
 
 	for !isWorkDay(dateTime.Weekday(), workDays) {

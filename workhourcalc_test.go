@@ -423,6 +423,40 @@ func TestMoveToNextValidWorkTime(t *testing.T) {
 	}
 }
 
+func TestMoveToNextValidWorkTimeOnSameDayButAfterHours(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 7,
+		StartMinute: 45,
+		EndHour: 8,
+		EndMinute: 15,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	day := time.Date(2019, 11, 4, 9, 0, 0, 0, time.Local)
+	actual := moveToNextValidWorkTime(day, workDays, workHours)
+	expected := time.Date(2019, 11, 5, 7, 45, 0, 0, time.Local)
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %v, got: %v.", expected, actual)
+	}
+}
+
+func TestMoveToPreviousValidWorkTimeOnSameDayButBeforeHours(t *testing.T) {
+	workHours := WorkHours{
+		StartHour: 7,
+		StartMinute: 45,
+		EndHour: 8,
+		EndMinute: 15,
+	}
+	workDays := []time.Weekday{time.Monday,time.Tuesday,time.Wednesday,time.Thursday,time.Friday}
+
+	day := time.Date(2019, 11, 4, 6, 0, 0, 0, time.Local)
+	actual := moveToLastValidWorkTime(day, workDays, workHours)
+	expected := time.Date(2019, 11, 1, 8, 15, 0, 0, time.Local)
+	if expected != actual {
+		t.Errorf("Incorrect, wanted: %v, got: %v.", expected, actual)
+	}
+}
+
 func TestMoveToLastValidWorkTime(t *testing.T) {
 	workHours := WorkHours{
 		StartHour: 7,
